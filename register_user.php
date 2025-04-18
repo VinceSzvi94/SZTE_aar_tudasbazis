@@ -1,8 +1,15 @@
 <?php
-// Start session
+/**
+ * Felhasználói regisztráció feldolgozó oldal
+ * 
+ * Ez a fájl dolgozza fel a regisztrációs űrlapról érkező adatokat,
+ * validálja azokat, hash-eli a jelszót és létrehozza az új felhasználói fiókot.
+ */
+
+// Munkamenet indítása
 session_start();
 
-// Redirect if already logged in
+// Átirányítás, ha már bejelentkezett
 if (isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
@@ -14,9 +21,9 @@ $connection = getDatabaseConnection();
 $error_message = '';
 $success = false;
 
-// Process registration form submission
+// Regisztrációs űrlap feldolgozása
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve form data
+    // Űrlap adatok beolvasása
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
@@ -26,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $street_type = isset($_POST['street_type']) ? trim($_POST['street_type']) : null;
     $house_number = isset($_POST['house_number']) ? trim($_POST['house_number']) : null;
     
-    // Validate form data
+    // Űrlap adatok ellenőrzése
     if (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
         $error_message = 'Minden kötelező mezőt ki kell tölteni.';
     } elseif ($password !== $confirm_password) {
@@ -34,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($password) < 6) {
         $error_message = 'A jelszónak legalább 6 karakter hosszúnak kell lennie.';
     } else {
-        // Check if email already exists
+        // Email cím foglaltságának ellenőrzése
         $checkQuery = "SELECT COUNT(*) as count FROM Felhasznalo WHERE Email = :email";
         $checkStmt = $connection->prepare($checkQuery);
         $checkStmt->bindParam(':email', $email);
@@ -44,17 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result['COUNT'] > 0) {
             $error_message = 'Ez az email cím már használatban van.';
         } else {
-            // Hash password
+            // Jelszó hash-elése
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             
             try {
-                // Get the next ID from the sequence
+                // Következő ID lekérése a szekvenciából
                 $seqQuery = "SELECT felhasznalo_seq.NEXTVAL as next_id FROM DUAL";
                 $seqStmt = $connection->query($seqQuery);
                 $seqResult = $seqStmt->fetch(PDO::FETCH_ASSOC);
                 $userId = $seqResult['NEXT_ID'];
                 
-                // Insert new user
+                // Új felhasználó beszúrása
                 $insertQuery = "INSERT INTO Felhasznalo (ID, Nev, Email, Jelszo, Varos, Kozterulet_nev, Kozterulet_tipus, Hazszam) 
                                 VALUES (:id, :nev, :email, :jelszo, :varos, :kozterulet_nev, :kozterulet_tipus, :hazszam)";
                                 
@@ -69,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $insertStmt->bindParam(':hazszam', $house_number);
                 $insertStmt->execute();
                 
-                // Registration successful
+                // Regisztráció sikeres
                 $success = true;
                 
             } catch (PDOException $e) {
@@ -126,6 +133,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </html>
 
 <?php
-// Close database connection
+// Adatbázis kapcsolat lezárása
 $connection = null;
 ?>

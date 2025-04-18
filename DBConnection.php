@@ -1,4 +1,16 @@
 <?php
+/**
+ * Adatbázis kapcsolódási fájl
+ * 
+ * Ez a fájl kezeli az Oracle adatbázishoz való kapcsolódást.
+ * PDO kapcsolódást használ a biztonságos adatbázis műveletek érdekében.
+ */
+
+/**
+ * Adatbázis kapcsolat létrehozása
+ *
+ * @return PDO Az adatbázis kapcsolatot reprezentáló objektum
+ */
 function getDatabaseConnection() {
     $tns = "
         (DESCRIPTION =
@@ -11,7 +23,7 @@ function getDatabaseConnection() {
         $conn = new PDO("oci:dbname=" . $tns, $db_username, $db_password);
         return $conn;
     } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
+        die("Adatbázis kapcsolódási hiba: " . $e->getMessage());
     }
 }
 ?>

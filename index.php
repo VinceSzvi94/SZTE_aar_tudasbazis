@@ -1,20 +1,27 @@
 <?php
-// Start session for user authentication
+/**
+ * Tudásbázis főoldal
+ * 
+ * Ez a fájl a weboldal főoldalát jeleníti meg,
+ * mutatja a legfrissebb cikkeket, kategóriákat és felhasználói opciókat.
+ */
+
+// Munkamenet indítása a felhasználói hitelesítéshez
 session_start();
 
 require_once 'DBConnection.php';
 
 $connection = getDatabaseConnection();
 if ($connection) {
-    echo "Connection established";
+    echo "Kapcsolódás sikeres";
 }
 
-// Check if user is logged in
+// Ellenőrizzük, hogy a felhasználó be van-e jelentkezve
 $isLoggedIn = isset($_SESSION['user_id']);
 $isLektor = isset($_SESSION['is_lektor']) && $_SESSION['is_lektor'] == true;
 $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == true;
 
-// Get latest articles
+// Legújabb cikkek lekérése
 $latestArticlesQuery = "SELECT c.ID, c.Cim, c.Letrehozas_Datum, k.Nev as Kategoria, f.Nev as Szerzo 
                         FROM Cikk c 
                         LEFT JOIN Kategoria k ON c.Kategoria_ID = k.ID 
@@ -24,7 +31,7 @@ $latestArticlesQuery = "SELECT c.ID, c.Cim, c.Letrehozas_Datum, k.Nev as Kategor
 $latestStmt = $connection->prepare($latestArticlesQuery);
 $latestStmt->execute();
 
-// Get recently modified articles
+// Nemrég módosított cikkek lekérése
 $recentlyModifiedQuery = "SELECT c.ID, c.Cim, c.Modositas_Datum, k.Nev as Kategoria, f.Nev as Szerzo 
                           FROM Cikk c 
                           LEFT JOIN Kategoria k ON c.Kategoria_ID = k.ID 
@@ -35,12 +42,12 @@ $recentlyModifiedQuery = "SELECT c.ID, c.Cim, c.Modositas_Datum, k.Nev as Katego
 $modifiedStmt = $connection->prepare($recentlyModifiedQuery);
 $modifiedStmt->execute();
 
-// Get categories
+// Kategóriák lekérése
 $categoriesQuery = "SELECT ID, Nev FROM Kategoria ORDER BY Nev";
 $categoriesStmt = $connection->prepare($categoriesQuery);
 $categoriesStmt->execute();
 
-// Store categories in array for later use
+// Kategóriák tárolása tömbben későbbi felhasználásra
 $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -55,7 +62,7 @@ $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <header>
         <div class="logo">
-            <img src="logo.png" alt="Tudásbázis Logo">
+            <img src="logo.jpg" alt="Tudásbázis Logo">
             <h1>Tudásbázis</h1>
         </div>
         <div class="search">
@@ -80,7 +87,7 @@ $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
             <section class="featured-article">
                 <h2>A nap cikke</h2>
                 <?php
-                // Get a featured article (for simplicity, use the most recently created lektorált article)
+                // Kiemelt cikk lekérése (egyszerűség kedvéért a legújabb lektorált cikk)
                 $featuredQuery = "SELECT c.ID, c.Cim, DBMS_LOB.SUBSTR(c.Tartalom, 200, 1) as RovidTartalom 
                                   FROM Cikk c 
                                   WHERE c.Van_e_lektoralva = 1
@@ -188,6 +195,6 @@ $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 </html>
 
 <?php
-// Close database connection
+// Adatbázis kapcsolat lezárása
 $connection = null;
 ?>

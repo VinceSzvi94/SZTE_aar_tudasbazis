@@ -1,8 +1,15 @@
 <?php
-// Start session for user authentication
+/**
+ * Regisztrációs űrlap oldal
+ * 
+ * Ez a fájl tartalmazza a regisztrációs űrlapot,
+ * amelyen keresztül új felhasználók hozhatnak létre fiókot.
+ */
+
+// Munkamenet indítása a felhasználói hitelesítéshez
 session_start();
 
-// Redirect if already logged in
+// Átirányítás, ha már bejelentkezett
 if (isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
@@ -15,7 +22,7 @@ $error_message = '';
 $success_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle registration form submission via POST to register_user.php
+    // Regisztrációs űrlap feldolgozása a register_user.php-ra
     header('Location: register_user.php');
     exit;
 }
@@ -109,6 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </html>
 
 <?php
-// Close database connection
+// Adatbázis kapcsolat lezárása
 $connection = null;
 ?>

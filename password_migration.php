@@ -1,31 +1,44 @@
 <?php
-// Database connection using PDO
+/**
+ * Jelszó migráció kezelő script
+ * 
+ * Ez a fájl frissíti az adatbázisban található plain text jelszavakat,
+ * biztonságos, hash-elt jelszavakká a PHP password_hash() függvény használatával.
+ * Csak azokat a jelszavakat hash-eli, amelyek még nem voltak hash-elve korábban.
+ */
+
+// Adatbázis kapcsolódás PDO használatával
 try {
     require_once 'DBConnection.php';
     $pdo = getDatabaseConnection();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    echo "Database connection failed: " . $e->getMessage();
+    echo "Adatbázis kapcsolódási hiba: " . $e->getMessage();
     exit;
 }
 
-// Function to check if a password is already hashed
+/**
+ * Ellenőrzi, hogy egy jelszó már hash-elt-e
+ * 
+ * @param string $password A vizsgálandó jelszó
+ * @return bool Igaz, ha a jelszó már hash-elt
+ */
 function isHashed($password) {
-    // password_hash typically produces strings starting with $2y$ (bcrypt)
+    // A password_hash általában $2y$ karakterekkel kezdődő jelszavakat állít elő (bcrypt)
     return (strpos($password, '$2y$') === 0);
 }
 
 $passwordsUpdated = 0;
 $alreadyHashed = 0;
 
-// Update Felhasznalo table passwords
+// Felhasználói táblában lévő jelszavak frissítése
 $query = "SELECT ID, Jelszo FROM Felhasznalo";
 $stmt = $pdo->query($query);
 
 while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $currentPassword = $user['JELSZO'];
     
-    // Only hash if the password isn't already hashed
+    // Csak akkor hash-elünk, ha a jelszó még nincs hash-elve
     if (!isHashed($currentPassword)) {
         $hashedPassword = password_hash($currentPassword, PASSWORD_DEFAULT);
         
@@ -35,21 +48,21 @@ while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $updateStmt->bindParam(':id', $user['ID']);
         $updateStmt->execute();
         
-        echo "Updated password for user ID: " . $user['ID'] . "<br>";
+        echo "Frissítve a jelszó a következő felhasználó ID-hoz: " . $user['ID'] . "<br>";
         $passwordsUpdated++;
     } else {
         $alreadyHashed++;
     }
 }
 
-// Do the same for Admin table
+// Ugyanezt elvégezzük az Admin táblához is
 $query = "SELECT ID, Jelszo FROM Admin";
 $stmt = $pdo->query($query);
 
 while ($admin = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $currentPassword = $admin['JELSZO'];
     
-    // Only hash if the password isn't already hashed
+    // Csak akkor hash-elünk, ha a jelszó még nincs hash-elve
     if (!isHashed($currentPassword)) {
         $hashedPassword = password_hash($currentPassword, PASSWORD_DEFAULT);
         
@@ -59,21 +72,21 @@ while ($admin = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $updateStmt->bindParam(':id', $admin['ID']);
         $updateStmt->execute();
         
-        echo "Updated password for admin ID: " . $admin['ID'] . "<br>";
+        echo "Frissítve a jelszó a következő admin ID-hoz: " . $admin['ID'] . "<br>";
         $passwordsUpdated++;
     } else {
         $alreadyHashed++;
     }
 }
 
-// Report summary
-echo "<br><strong>Password migration summary:</strong><br>";
-echo "Passwords updated: $passwordsUpdated<br>";
-echo "Already hashed passwords: $alreadyHashed<br>";
+// Eredmény összegzése
+echo "<br><strong>Jelszó migráció összefoglaló:</strong><br>";
+echo "Frissített jelszavak: $passwordsUpdated<br>";
+echo "Már hash-elt jelszavak: $alreadyHashed<br>";
 
 if ($passwordsUpdated == 0) {
-    echo "<br><strong>All passwords are already hashed.</strong>";
+    echo "<br><strong>Minden jelszó már hash-elve van.</strong>";
 } else {
-    echo "<br><strong>Password migration completed successfully!</strong>";
+    echo "<br><strong>Jelszó migráció sikeresen befejeződött!</strong>";
 }
 ?>

@@ -1,8 +1,15 @@
 <?php
-// Start session for user authentication
+/**
+ * Bejelentkezés kezelő oldal
+ * 
+ * Ez a fájl kezeli a felhasználók és adminok bejelentkezését.
+ * Ellenőrzi a beírt jelszavakat a hash-elt jelszavakkal szemben.
+ */
+
+// Munkamenet indítása a felhasználói hitelesítéshez
 session_start();
 
-// Redirect if already logged in
+// Átirányítás, ha már bejelentkezett
 if (isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
@@ -13,12 +20,12 @@ require_once 'DBConnection.php';
 $connection = getDatabaseConnection();
 $error_message = '';
 
-// Process login form submission
+// Bejelentkezési űrlap feldolgozása
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     
-    // Check if admin login
+    // Admin bejelentkezés ellenőrzése
     if (isset($_POST['admin_login']) && $_POST['admin_login'] == '1') {
         $query = "SELECT ID, Nev, Email, Jelszo FROM Admin WHERE Email = :email";
         $stmt = $connection->prepare($query);
@@ -28,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($user && password_verify($password, $user['JELSZO'])) {
-            // Admin login successful
+            // Admin bejelentkezés sikeres
             $_SESSION['user_id'] = $user['ID'];
             $_SESSION['user_name'] = $user['NEV'];
             $_SESSION['user_email'] = $user['EMAIL'];
@@ -40,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = 'Hibás admin bejelentkezési adatok!';
         }
     } else {
-        // Regular user login
+        // Normál felhasználói bejelentkezés
         $query = "SELECT f.ID, f.Nev, f.Email, f.Jelszo, CASE WHEN l.Felhasznalo_ID IS NOT NULL THEN 1 ELSE 0 END as IsLektor 
                   FROM Felhasznalo f 
                   LEFT JOIN Lektor l ON f.ID = l.Felhasznalo_ID 
@@ -52,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($user && password_verify($password, $user['JELSZO'])) {
-            // User login successful
+            // Felhasználói bejelentkezés sikeres
             $_SESSION['user_id'] = $user['ID'];
             $_SESSION['user_name'] = $user['NEV'];
             $_SESSION['user_email'] = $user['EMAIL'];
@@ -128,6 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </html>
 
 <?php
-// Close database connection
+// Adatbázis kapcsolat lezárása
 $connection = null;
 ?>

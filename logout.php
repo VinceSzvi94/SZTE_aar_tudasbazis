@@ -1,14 +1,21 @@
 <?php
-// Start session
+/**
+ * Kijelentkezés kezelő oldal
+ * 
+ * Ez a fájl kezeli a felhasználók kijelentkezését,
+ * megszünteti a munkamenetet és visszairányít a főoldalra.
+ */
+
+// Munkamenet indítása
 session_start();
 
-// Clear all session variables
+// Összes munkamenet változó törlése
 $_SESSION = array();
 
-// Destroy the session
+// Munkamenet megszüntetése
 session_destroy();
 
-// Redirect to home page
+// Átirányítás a főoldalra
 header('Location: index.php');
 exit;
 ?>
