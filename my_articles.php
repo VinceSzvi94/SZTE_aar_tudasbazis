@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'DBConnection.php';
+$conn = getDatabaseConnection();
 
 // Ellenőrizze, hogy be van-e jelentkezve a felhasználó
 if (!isset($_SESSION['user_id'])) {
@@ -32,7 +33,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php foreach ($articles as $article) : ?>
                 <section class="featured-article">
                     <h3><?php echo htmlspecialchars($article['CIM']); ?></h3>
-                    <p><strong>Kategória:</strong> <?php echo htmlspecialchars($article['kategoria']); ?></p>
+                    <p><strong>Kategória:</strong> <?php echo htmlspecialchars($article['KATEGORIA']); ?></p>
                     <div class="form-actions">
                         <a href="edit_article.php?id=<?php echo $article['ID']; ?>" class="btn btn-primary">Módosítás</a>
                         <a href="delete_article.php?id=<?php echo $article['ID']; ?>" class="btn" onclick="return confirm('Biztosan törlöd ezt a cikket?');">Törlés</a>

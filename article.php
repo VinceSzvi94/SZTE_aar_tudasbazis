@@ -8,6 +8,8 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
+$conn = getDatabaseConnection();
+
 $article_id = intval($_GET['id']);
 
 // Cikk adatainak betöltése
@@ -15,6 +17,11 @@ $stmt = $conn->prepare("SELECT c.CIM, c.TARTALOM, c.LETREHOZAS_DATUM, k.NEV as K
 $stmt->bindParam(':id', $article_id);
 $stmt->execute();
 $article = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Ha a tartalom CLOB/resource, sztringé alakítás
+if (is_resource($article['TARTALOM'])) {
+    $article['TARTALOM'] = stream_get_contents($article['TARTALOM']);
+}
 
 if (!$article) {
     echo "A keresett cikk nem létezik.";

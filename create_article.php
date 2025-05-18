@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'DBConnection.php';
+$conn = getDatabaseConnection();
 
 // Ellenőrizze, hogy be van-e jelentkezve a felhasználó
 if (!isset($_SESSION['user_id'])) {
@@ -16,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = trim($_POST['content']);
     $category_id = intval($_POST['category_id']);
 
-    $stmt = $conn->prepare("INSERT INTO Cikk (cim, tartalom, letrehozta_id, kategoria_id, van_e_lektoralva) VALUES (:title, :content, :user_id, :category_id, 0)");
+    $stmt = $conn->prepare("INSERT INTO Cikk (id, cim, tartalom, letrehozta_id, kategoria_id, van_e_lektoralva) VALUES (cikk_seq.NEXTVAL, :title, :content, :user_id, :category_id, 0)");
     $stmt->bindParam(':title', $title);
     $stmt->bindParam(':content', $content);
     $stmt->bindParam(':user_id', $user_id);

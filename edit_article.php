@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'DBConnection.php';
+$conn = getDatabaseConnection();
 
 // Ellenőrizze, hogy be van-e jelentkezve a felhasználó
 if (!isset($_SESSION['user_id'])) {

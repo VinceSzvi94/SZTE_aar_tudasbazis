@@ -62,7 +62,7 @@ $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <header>
         <div class="logo">
-            <img src="logo.jpg" alt="Tudásbázis Logo">
+            <img src="img/logo.jpg" alt="Tudásbázis Logo" width="80" height="80">
             <h1>Tudásbázis</h1>
         </div>
         <div class="search">
@@ -73,7 +73,7 @@ $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="user-panel">
             <?php if ($isLoggedIn): ?>
-                <a href="profile.php" class="btn btn-primary">Profil</a>
+                <a href="edit_profile.php" class="btn btn-primary">Profil</a>
                 <a href="logout.php" class="btn">Kijelentkezés</a>
             <?php else: ?>
                 <a href="login.php" class="btn btn-primary">Bejelentkezés</a>
@@ -127,7 +127,7 @@ $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="profile-menu">
                     <h3>Profil adatok</h3>
                     <ul>
-                        <li><a href="profile.php">Saját cikkek</a></li>
+                        <li><a href="my_articles.php">Saját cikkek</a></li>
                         <li><a href="reported-errors.php">Hiba bejelentések</a></li>
                         <?php if ($isLektor): ?>
                         <li><a href="pending-reviews.php" class="lektor-link">Átolvasásra váró cikkek</a></li>
@@ -135,7 +135,7 @@ $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php if ($isAdmin): ?>
                         <li><a href="admin.php" class="admin-link">Admin felület</a></li>
                         <?php endif; ?>
-                        <li><a href="new-article.php">Új cikk létrehozása</a></li>
+                        <li><a href="create_article.php">Új cikk létrehozása</a></li>
                     </ul>
                 </div>
                 <?php endif; ?>

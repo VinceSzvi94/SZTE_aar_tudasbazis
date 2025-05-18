@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <header>
         <div class="logo">
-            <img src="logo.png" alt="Tudásbázis Logo">
+            <img src="img/logo.jpg" alt="Tudásbázis Logo" width="80" height="80">
             <h1>Tudásbázis</h1>
         </div>
         <div class="user-panel">

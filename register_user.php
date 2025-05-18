@@ -9,7 +9,7 @@
 // Munkamenet indítása
 session_start();
 
-// Átirányítás, ha már bejelentkezett
+// Átirányítás, ha már bejelentkezett, ekkor nem lehetséges a regisztráció
 if (isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = 'Minden kötelező mezőt ki kell tölteni.';
     } elseif ($password !== $confirm_password) {
         $error_message = 'A megadott jelszavak nem egyeznek.';
-    } elseif (strlen($password) < 6) {
-        $error_message = 'A jelszónak legalább 6 karakter hosszúnak kell lennie.';
+    } elseif (strlen($password) < 6 || strlen($password) > 20) {
+        $error_message = 'A jelszónak legalább 6 és legfeljebb 20 karakter hosszúnak kell lennie.';
     } else {
         // Email cím foglaltságának ellenőrzése
         $checkQuery = "SELECT COUNT(*) as count FROM Felhasznalo WHERE Email = :email";
@@ -56,17 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             try {
                 // Következő ID lekérése a szekvenciából
-                $seqQuery = "SELECT felhasznalo_seq.NEXTVAL as next_id FROM DUAL";
-                $seqStmt = $connection->query($seqQuery);
-                $seqResult = $seqStmt->fetch(PDO::FETCH_ASSOC);
-                $userId = $seqResult['NEXT_ID'];
+                // $seqQuery = "SELECT felhasznalo_seq.NEXTVAL as next_id FROM DUAL";
+                // $seqStmt = $connection->query($seqQuery);
+                // $seqResult = $seqStmt->fetch(PDO::FETCH_ASSOC);
+                // $userId = $seqResult['NEXT_ID'];
                 
                 // Új felhasználó beszúrása
                 $insertQuery = "INSERT INTO Felhasznalo (ID, Nev, Email, Jelszo, Varos, Kozterulet_nev, Kozterulet_tipus, Hazszam) 
-                                VALUES (:id, :nev, :email, :jelszo, :varos, :kozterulet_nev, :kozterulet_tipus, :hazszam)";
+                                VALUES (felhasznalo_seq.NEXTVAL, :nev, :email, :jelszo, :varos, :kozterulet_nev, :kozterulet_tipus, :hazszam)";
                                 
                 $insertStmt = $connection->prepare($insertQuery);
-                $insertStmt->bindParam(':id', $userId);
+                // $insertStmt->bindParam(':id', $userId);
                 $insertStmt->bindParam(':nev', $name);
                 $insertStmt->bindParam(':email', $email);
                 $insertStmt->bindParam(':jelszo', $hashed_password);
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <header>
         <div class="logo">
-            <img src="logo.png" alt="Tudásbázis Logo">
+            <img src="img/logo.jpg" alt="Tudásbázis Logo" width="80" height="80">
             <h1>Tudásbázis</h1>
         </div>
         <div class="user-panel">
